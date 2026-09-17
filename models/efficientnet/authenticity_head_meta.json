@@ -1,0 +1,14 @@
+{
+  "model_name": "efficientnet_b0_authenticity_logreg",
+  "model_version": "sih-phase5-synthetic-v1",
+  "backbone": "efficientnet_b0",
+  "embedding_dim": 1280,
+  "classes": [
+    "authentic",
+    "tampered"
+  ],
+  "dataset": "synthetic_embedding_proxy_v1",
+  "samples_per_class": 40,
+  "calibrated": false,
+  "note": "Trained on synthetic embedding distributions only \u2014 not on real government identity documents. Probabilities are uncalibrated review signals, not legal authenticity."
+}

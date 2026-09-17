@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DOCSHIELD AI — Screening Command Center</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar" role="banner">
+      <div class="brand-lockup">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <div>
+          <p class="brand-name">AI DOCUMENT SCREENING</p>
+          <p class="brand-sub">Security Screening Platform · DOCSHIELD</p>
+        </div>
+      </div>
+      <div class="topbar-meta">
+        <span id="demo-chip" class="demo-chip is-hidden">DEMO MODE</span>
+        <span id="case-chip" class="case-chip">CASE: —</span>
+        <span class="phase-chip">SIH 26188</span>
+        <div id="sys-status" class="sys-status" aria-label="System status"></div>
+        <button type="button" class="btn btn-ghost tiny" id="btn-low-gfx" aria-pressed="false">Low graphics</button>
+      </div>
+    </header>
+
+    <div class="body-row">
+      <aside id="sidebar" class="sidebar" aria-label="Primary navigation">
+        <button type="button" class="side-toggle" id="btn-sidebar" aria-expanded="true" aria-controls="side-nav">☰</button>
+        <nav id="side-nav" class="side-nav">
+          <button type="button" class="side-link is-active" data-view="overview"><span class="side-ico" aria-hidden="true">◆</span><span class="nav-label">Overview</span></button>
+          <button type="button" class="side-link" data-view="screening"><span class="side-ico" aria-hidden="true">▣</span><span class="nav-label">Screening</span></button>
+          <button type="button" class="side-link" data-view="document"><span class="side-ico" aria-hidden="true">▤</span><span class="nav-label">Documents</span></button>
+          <button type="button" class="side-link" data-view="identity"><span class="side-ico" aria-hidden="true">◎</span><span class="nav-label">Identity</span></button>
+          <button type="button" class="side-link" data-view="forensics"><span class="side-ico" aria-hidden="true">⬡</span><span class="nav-label">Forensics</span></button>
+          <button type="button" class="side-link" data-view="evidence"><span class="side-ico" aria-hidden="true">◈</span><span class="nav-label">Evidence</span></button>
+          <button type="button" class="side-link" data-view="result"><span class="side-ico" aria-hidden="true">◉</span><span class="nav-label">Result</span></button>
+          <button type="button" class="side-link" data-view="reports"><span class="side-ico" aria-hidden="true">☰</span><span class="nav-label">Reports</span></button>
+          <button type="button" class="side-link" data-view="audit"><span class="side-ico" aria-hidden="true">⌀</span><span class="nav-label">Audit</span></button>
+        </nav>
+        <p class="side-foot">Screening assist only · not legal authenticity · blockchain NOT_CONNECTED</p>
+      </aside>
+
+      <main class="main" id="main">
+        <!-- OVERVIEW -->
+        <section id="view-overview" class="view is-active" aria-labelledby="ov-title">
+          <div class="overview-hero">
+            <canvas id="hero-canvas" aria-hidden="true"></canvas>
+            <div class="hero-overlay">
+              <h1 id="ov-title" class="hero-title">DOCUMENT SCREENING</h1>
+              <p class="hero-lead">AI-powered document, forensic and identity analysis for authorized reviewers.</p>
+              <div class="actions">
+                <button type="button" class="btn btn-primary" id="btn-start-screening">START NEW SCREENING</button>
+                <a class="btn btn-ghost" href="/dashboard">OPEN CASE QUEUE</a>
+              </div>
+            </div>
+          </div>
+          <div class="grid-3">
+            <div class="panel"><h3>Secure intake</h3><p class="muted tiny">Validated upload · retention policy · rate limits</p></div>
+            <div class="panel"><h3>Multimodal evidence</h3><p class="muted tiny">OCR · MRZ · EffNet/ViT/CLIP · forensics · face</p></div>
+            <div class="panel"><h3>Officer decision</h3><p class="muted tiny">PASS · REVIEW · HIGH-RISK · INCONCLUSIVE</p></div>
+          </div>
+        </section>
+
+        <!-- SCREENING -->
+        <section id="view-screening" class="view" aria-labelledby="sc-title">
+          <h2 id="sc-title">New screening</h2>
+          <div class="workflow-steps" aria-label="Workflow">
+            <div class="wf-step is-active" data-wf="document">01 DOCUMENT</div>
+            <div class="wf-step" data-wf="identity">02 IDENTITY</div>
+            <div class="wf-step" data-wf="forensics">03 FORENSICS</div>
+            <div class="wf-step" data-wf="evidence">04 EVIDENCE</div>
+            <div class="wf-step" data-wf="result">05 RESULT</div>
+          </div>
+
+          <div class="grid-2">
+            <div class="panel">
+              <div class="panel-head">
+                <h2>Document input</h2>
+                <p>PNG · JPG · WEBP · PDF · max 10 MB · supported types from backend taxonomy</p>
+              </div>
+              <div id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="Drop document or browse">
+                <canvas id="upload-canvas" aria-hidden="true"></canvas>
+                <input id="file-input" type="file" accept=".png,.jpg,.jpeg,.webp,.pdf,image/png,image/jpeg,image/webp,application/pdf" hidden />
+                <div class="dropzone-inner">
+                  <p class="drop-title">DROP DOCUMENT HERE</p>
+                  <p class="drop-hint">or click to browse · USE CAMERA below after face detect</p>
+                </div>
+              </div>
+              <div id="preview-wrap" class="preview-wrap is-hidden">
+                <img id="preview" alt="Document preview" />
+                <div>
+                  <p id="file-name" class="mono"></p>
+                  <p id="file-meta" class="muted tiny"></p>
+                </div>
+              </div>
+              <div class="actions">
+                <button id="btn-analyze" class="btn btn-primary" type="button" disabled>UPLOAD &amp; ANALYZE</button>
+                <button id="btn-remove" class="btn btn-ghost" type="button" disabled>Remove</button>
+                <button id="btn-clear" class="btn btn-ghost" type="button">Clear</button>
+              </div>
+              <p id="status" class="status" role="status" aria-live="polite"></p>
+              <ul id="analyze-progress" class="pipeline is-hidden" aria-live="polite"></ul>
+
+              <div id="live-verify-banner" class="live-verify-banner is-hidden" role="region">
+                <p><strong>DOCUMENT FACE DETECTED</strong> — live identity capture is required before the final officer verdict.</p>
+                <div class="actions">
+                  <button id="btn-live-verify" class="btn btn-primary" type="button">START FACE VERIFICATION</button>
+                  <button id="btn-live-skip" class="btn btn-ghost" type="button">Continue without face (review only)</button>
+                </div>
+                <p class="muted tiny">Browser permission required · capture compares live face to document face · age-robustness NOT_VALIDATED</p>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-head">
+                <h2>Live forensic scanner</h2>
+                <p>Visualizes active pipeline modules — not a fake progress timer</p>
+              </div>
+              <div class="viz-frame tall">
+                <canvas id="scanner-canvas" aria-hidden="true"></canvas>
+                <span class="viz-caption" id="scanner-caption">IDLE</span>
+              </div>
+              <div class="panel-head" style="margin-top:1rem">
+                <h3>Assessment</h3>
+              </div>
+              <div id="empty-state" class="muted tiny">No case yet. Upload a document to open a screening case.</div>
+              <div id="result-card" class="is-hidden">
+                <p class="muted tiny">Case <strong id="out-case" class="mono">—</strong> · backend <span id="out-backend-decision" class="mono">—</span></p>
+                <div class="verdict-compact" id="verdict-compact">
+                  <span class="verdict-icon" id="out-decision-icon" aria-hidden="true">○</span>
+                  <div>
+                    <p id="out-decision" class="decision">PENDING</p>
+                    <p id="out-message" class="muted tiny"></p>
+                  </div>
+                </div>
+                <div class="score-grid">
+                  <div class="score"><span>Authenticity (proxy)</span><strong id="out-auth">—</strong></div>
+                  <div class="score"><span>Model confidence</span><strong id="out-conf">—</strong></div>
+                  <div class="score"><span>Evidence quality</span><strong id="out-eq">—</strong></div>
+                </div>
+                <p class="tiny muted">Type: <span id="out-type">—</span> · <span id="out-sih-cat">—</span></p>
+                <p class="tiny muted" id="out-clf-method">—</p>
+                <div class="result-cards" id="result-cards"></div>
+                <ul id="reasons-list" class="pipeline"></ul>
+                <p id="out-action" class="muted tiny"></p>
+                <div class="actions">
+                  <button type="button" class="btn btn-primary" data-goto="result">VIEW FULL RESULT</button>
+                  <button type="button" class="btn btn-ghost" data-goto="forensics">VIEW HEATMAP</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- DOCUMENT -->
+        <section id="view-document" class="view">
+          <div class="grid-2">
+            <div class="panel">
+              <div class="panel-head"><h2>Document viewer</h2><p>Zoom · overlays from real OCR / face / forensic boxes</p></div>
+              <div class="viewer-toolbar">
+                <button type="button" class="btn btn-ghost" data-zoom="in" aria-label="Zoom in">Zoom +</button>
+                <button type="button" class="btn btn-ghost" data-zoom="out" aria-label="Zoom out">Zoom −</button>
+                <button type="button" class="btn btn-ghost" data-zoom="reset" aria-label="Reset zoom">Reset</button>
+              </div>
+              <div class="doc-viewer">
+                <div class="doc-viewer-stage" id="doc-stage">
+                  <img id="doc-img" alt="Screened document" class="is-hidden" />
+                  <div id="doc-overlay" aria-hidden="true"></div>
+                </div>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><h2>OCR / fields</h2><p>Transcription confidence ≠ authenticity</p></div>
+              <ul id="fields-list" class="kv-list"></ul>
+              <div id="mrz-block">
+                <p id="mrz-status" class="muted tiny"></p>
+                <ul id="mrz-checklist" class="kv-list"></ul>
+              </div>
+              <div class="panel-head" style="margin-top:1rem"><h3>Quality</h3></div>
+              <ul id="quality-list" class="kv-list"></ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- IDENTITY -->
+        <section id="view-identity" class="view">
+          <div id="identity-gate" class="panel identity-gate is-hidden" role="region" aria-live="polite">
+            <div class="panel-head">
+              <h2>LIVE IDENTITY VERIFICATION REQUIRED</h2>
+              <p>Document face was detected. Capture a clear live face to compare before the final result.</p>
+            </div>
+            <ol class="gate-steps">
+              <li>Allow camera permission</li>
+              <li>Center one face · even lighting · hold still</li>
+              <li>Wait for <strong>READY</strong> — capture runs automatically when quality is acceptable</li>
+              <li>Review match vs document face · then final officer verdict</li>
+            </ol>
+            <p id="identity-gate-status" class="status" role="status">Waiting to start camera…</p>
+          </div>
+          <div class="grid-2">
+            <div class="panel">
+              <div class="panel-head"><h2>Identity visualization</h2><p>Document face ↔ live face · abstract comparison</p></div>
+              <div class="viz-frame tall">
+                <canvas id="identity-canvas" aria-hidden="true"></canvas>
+                <span class="viz-caption">AGE-ROBUSTNESS: NOT_VALIDATED</span>
+              </div>
+              <ul id="face-list" class="kv-list"></ul>
+              <div id="identity-compare-strip" class="identity-compare-strip is-hidden" aria-live="polite"></div>
+            </div>
+            <div class="panel" id="camera-panel">
+              <div class="panel-head"><h2>Live camera</h2><p>1:1 verification only · no public identity search</p></div>
+              <p id="camera-state" class="muted tiny">CAMERA: OFF</p>
+              <div class="camera-stage">
+                <video id="camera-video" playsinline muted autoplay class="is-hidden"></video>
+                <canvas id="camera-canvas" class="is-hidden"></canvas>
+                <img id="camera-snap" alt="Captured frame" class="is-hidden" />
+                <div id="face-quality-hud" class="face-quality-hud is-hidden" aria-live="polite">
+                  <span id="fq-face">FACE: —</span>
+                  <span id="fq-light">LIGHT: —</span>
+                  <span id="fq-ready">STATUS: WAITING</span>
+                </div>
+              </div>
+              <div class="actions camera-actions">
+                <button id="btn-cam-start" class="btn btn-ghost" type="button">Start camera</button>
+                <button id="btn-cam-capture" class="btn btn-primary" type="button" disabled>Capture &amp; match</button>
+                <button id="btn-cam-retake" class="btn btn-ghost" type="button" disabled>Retake</button>
+                <button id="btn-cam-stop" class="btn btn-ghost" type="button" disabled>Stop</button>
+              </div>
+              <p id="camera-status" class="status muted tiny" role="status"></p>
+              <ul id="camera-result" class="kv-list"></ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- FORENSICS -->
+        <section id="view-forensics" class="view">
+          <div class="grid-2">
+            <div class="panel">
+              <div class="panel-head"><h2>Tampering / heatmaps</h2><p>Heuristic review signals · not fraud proof</p></div>
+              <ul id="tamper-list" class="kv-list"></ul>
+              <div id="heatmap-wrap" class="heatmap-wrap is-hidden">
+                <p class="muted tiny">Anomaly overlay (heuristic)</p>
+                <img id="heatmap-preview" alt="Tampering heatmap overlay" />
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><h2>Text · photo · stamp · metadata</h2></div>
+              <ul id="forensics-list" class="kv-list"></ul>
+              <div class="panel-head" style="margin-top:1rem"><h3>Typography consistency</h3></div>
+              <div id="typo-bars"></div>
+            </div>
+          </div>
+          <div class="panel" style="margin-top:1rem">
+            <div class="panel-head"><h2>Deep learning</h2><p>Statuses from backend · no fabricated authenticity %</p></div>
+            <ul id="vision-list" class="kv-list"></ul>
+            <div id="model-compare" class="grid-4" style="margin-top:0.75rem"></div>
+          </div>
+        </section>
+
+        <!-- EVIDENCE -->
+        <section id="view-evidence" class="view">
+          <div class="grid-2">
+            <div class="panel">
+              <div class="panel-head"><h2>Evidence consistency graph</h2><p>Nodes reflect modules present in this case</p></div>
+              <div class="viz-frame tall">
+                <canvas id="graph-canvas" aria-hidden="true"></canvas>
+              </div>
+              <div id="conflict-panel" class="conflict-panel is-hidden">
+                <h3>EVIDENCE CONFLICT</h3>
+                <ul id="conflict-list" class="kv-list"></ul>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><h2>Cross-validation · calibration · confidence</h2></div>
+              <ul id="crossval-list" class="kv-list"></ul>
+              <ul id="calib-list" class="kv-list"></ul>
+              <ul id="conf-list" class="kv-list"></ul>
+              <ul id="explain-list" class="kv-list"></ul>
+              <ul id="pipeline" class="pipeline"></ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- RESULT — officer-first hierarchy -->
+        <section id="view-result" class="view" aria-labelledby="res-title">
+          <div id="result-empty" class="panel">
+            <p class="muted">No screening result yet. Start a screening to see the officer verdict.</p>
+            <button type="button" class="btn btn-primary" data-goto="screening">START SCREENING</button>
+          </div>
+
+          <div id="result-dashboard" class="is-hidden">
+            <article class="verdict-hero" id="verdict-hero" aria-live="polite">
+              <p class="eyebrow" id="res-title">FINAL OFFICER VERDICT</p>
+              <div class="verdict-hero-row">
+                <span class="verdict-icon xl" id="verdict-icon" aria-hidden="true">○</span>
+                <div>
+                  <h2 class="verdict-label" id="verdict-label">PENDING</h2>
+                  <p class="verdict-blurb" id="verdict-blurb">Upload and analyze a document.</p>
+                  <p class="tiny muted">Backend decision: <span id="verdict-backend" class="mono">—</span> · Case <span id="verdict-case" class="mono">—</span></p>
+                </div>
+              </div>
+              <p class="verdict-action" id="verdict-action"></p>
+              <div class="actions">
+                <button type="button" class="btn btn-primary" data-goto="forensics" data-scroll="heatmap">VIEW EVIDENCE</button>
+                <button type="button" class="btn btn-ghost" id="btn-jump-heatmap">VIEW HEATMAP</button>
+                <button type="button" class="btn btn-ghost" data-goto="evidence">TECHNICAL DETAILS</button>
+                <button type="button" class="btn btn-ghost" data-goto="reports">GENERATE REPORT</button>
+                <button type="button" class="btn btn-ghost" data-goto="audit">VIEW AUDIT TRAIL</button>
+              </div>
+            </article>
+
+            <div class="panel" id="evidence-decision-panel" style="margin-top:1rem">
+              <div class="panel-head">
+                <h2>Evidence decision</h2>
+                <p>Document + identity fusion · calibration shown separately from match result</p>
+              </div>
+              <div class="grid-2">
+                <div>
+                  <p class="tiny muted">DOCUMENT EVIDENCE · <strong id="edp-doc-status" class="mono">—</strong></p>
+                  <ul id="edp-document" class="kv-list"></ul>
+                </div>
+                <div>
+                  <p class="tiny muted">IDENTITY EVIDENCE · <strong id="edp-id-status" class="mono">—</strong> · calib <strong id="edp-id-cal" class="mono">—</strong></p>
+                  <ul id="edp-identity" class="kv-list"></ul>
+                </div>
+              </div>
+              <div class="panel-head" style="margin-top:0.75rem"><h3>Conflicts</h3></div>
+              <ul id="edp-conflicts" class="kv-list"></ul>
+            </div>
+
+            <div class="grid-2" style="margin-top:1rem">
+              <div class="panel">
+                <div class="panel-head"><h2>Original document</h2><p>Uploaded image · overlays optional</p></div>
+                <div class="compare-stage" id="compare-original">
+                  <img id="result-doc-img" alt="Original screened document" class="is-hidden" />
+                  <div id="region-overlay" class="region-overlay" aria-hidden="true"></div>
+                  <p id="result-doc-empty" class="muted tiny">No document preview</p>
+                </div>
+                <div class="region-list" id="region-list"></div>
+              </div>
+              <div class="panel">
+                <div class="panel-head"><h2>Forensic visualization</h2><p>Actual localization overlay only · never decorative</p></div>
+                <div class="map-controls" role="group" aria-label="Forensic map mode">
+                  <button type="button" class="btn btn-ghost tiny is-map-active" data-map="original">ORIGINAL</button>
+                  <button type="button" class="btn btn-ghost tiny" data-map="combined">COMBINED</button>
+                  <button type="button" class="btn btn-ghost tiny" data-map="ela">ELA</button>
+                  <button type="button" class="btn btn-ghost tiny" data-map="noise">NOISE</button>
+                  <button type="button" class="btn btn-ghost tiny" data-map="copymove">COPY-MOVE</button>
+                  <button type="button" class="btn btn-ghost tiny" data-map="text">TEXT</button>
+                  <button type="button" class="btn btn-ghost tiny" data-map="photo">PHOTO</button>
+                  <button type="button" class="btn btn-ghost tiny" data-map="stamp">STAMP</button>
+                </div>
+                <label class="opacity-label" for="heatmap-opacity">Heatmap opacity <span id="opacity-val">70%</span></label>
+                <input type="range" id="heatmap-opacity" min="0" max="100" value="70" aria-valuemin="0" aria-valuemax="100" />
+                <div class="compare-stage" id="compare-forensic">
+                  <img id="result-heat-base" alt="" class="heat-base is-hidden" />
+                  <img id="result-heat-overlay" alt="Forensic heatmap" class="heat-overlay is-hidden" />
+                  <p id="forensic-map-na" class="muted tiny">FORENSIC MAP NOT AVAILABLE</p>
+                </div>
+                <p id="map-mode-note" class="muted tiny"></p>
+              </div>
+            </div>
+
+            <div class="panel" style="margin-top:1rem">
+              <div class="panel-head"><h2 id="why-title">WHY THIS RESULT</h2><p>Document text/spacing evidence + identity · from backend only</p></div>
+              <ul id="why-list" class="why-list" aria-live="polite"></ul>
+            </div>
+
+            <div class="panel" style="margin-top:1rem" id="typo-result-panel">
+              <div class="panel-head">
+                <h2>TEXT · FONT SCALE · SPACING EVIDENCE</h2>
+                <p>Measured from OCR or visual ink regions · not claimed font-family identification</p>
+              </div>
+              <div id="typo-result-summary" class="summary-grid"></div>
+              <div id="typo-result-bars" class="typo-result-bars"></div>
+              <ul id="typo-result-list" class="kv-list"></ul>
+              <p id="typo-result-note" class="muted tiny"></p>
+            </div>
+
+            <div class="panel" style="margin-top:1rem">
+              <div class="panel-head"><h2>SCREENING SUMMARY</h2><p>Separate indicators · not one fake overall %</p></div>
+              <div class="summary-grid" id="summary-grid"></div>
+              <div class="meter-grid" id="meter-grid"></div>
+            </div>
+
+            <div class="panel" style="margin-top:1rem">
+              <div class="panel-head"><h2>Processing timeline</h2></div>
+              <ol id="timeline-list" class="timeline-list"></ol>
+            </div>
+
+            <details class="panel tech-details" style="margin-top:1rem">
+              <summary>TECHNICAL DETAILS</summary>
+              <p class="muted tiny">Advanced: raw module statuses for technical review</p>
+              <div class="result-cards" id="result-cards-advanced"></div>
+              <ul id="tech-pipeline" class="pipeline"></ul>
+            </details>
+          </div>
+        </section>
+
+        <!-- REPORTS -->
+        <section id="view-reports" class="view">
+          <div class="panel">
+            <div class="panel-head"><h2>Report preview</h2><p>Generated from case evidence via API</p></div>
+            <div class="actions">
+              <button type="button" class="btn btn-primary" id="btn-load-report">Load report for current case</button>
+              <a class="btn btn-ghost" href="/dashboard">Case queue</a>
+            </div>
+            <pre id="report-preview" class="mono tiny" style="white-space:pre-wrap;margin-top:1rem;color:var(--text-muted)">No report loaded.</pre>
+          </div>
+        </section>
+
+        <!-- AUDIT -->
+        <section id="view-audit" class="view">
+          <div class="panel">
+            <div class="panel-head"><h2>Audit trail</h2><p>Local hash chain · blockchain NOT_CONNECTED</p></div>
+            <div class="actions">
+              <button type="button" class="btn btn-primary" id="btn-verify-audit">Verify chain</button>
+              <button type="button" class="btn btn-ghost" id="btn-load-audit">Load case audit</button>
+            </div>
+            <p id="audit-integrity" class="muted tiny">AUDIT INTEGRITY: —</p>
+            <ul id="audit-list" class="kv-list"></ul>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <div id="drawer-root" class="is-hidden">
+    <div class="drawer-backdrop" id="drawer-backdrop"></div>
+    <aside class="drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title">
+      <div class="drawer-head">
+        <h2 id="drawer-title">Evidence</h2>
+        <button type="button" class="btn btn-ghost" id="drawer-close" aria-label="Close">Close</button>
+      </div>
+      <div id="drawer-body"></div>
+    </aside>
+  </div>
+
+  <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+  <script src="/assets/three-viz.js"></script>
+  <script src="/assets/app.js"></script>
+</body>
+</html>

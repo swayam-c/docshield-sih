@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DOCSHIELD AI — Officer Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/styles.css" />
+  <style>
+    .dash-wrap { max-width: 1100px; margin: 0 auto; padding: 1.5rem; }
+    .dash-grid { display: grid; gap: 1rem; }
+    .cases-table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+    .cases-table th, .cases-table td { text-align: left; padding: 0.55rem 0.4rem; border-bottom: 1px solid var(--line); }
+    .cases-table th { color: var(--muted); font-weight: 600; font-size: 0.75rem; letter-spacing: 0.04em; text-transform: uppercase; }
+    .pill { font-family: var(--mono); font-size: 0.78rem; }
+    .pill.PASS { color: var(--ok); }
+    .pill.REVIEW { color: var(--warn); }
+    .pill.HIGH-RISK { color: var(--danger); }
+    .pill.INCONCLUSIVE { color: var(--muted); }
+    .dash-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; margin: 1rem 0; }
+    .dash-actions a, .dash-actions button {
+      border: 1px solid var(--line); background: #fff; color: var(--ink);
+      padding: 0.45rem 0.8rem; text-decoration: none; font: inherit; cursor: pointer;
+    }
+    #case-detail { white-space: pre-wrap; font-family: var(--mono); font-size: 0.78rem; background: rgba(255,255,255,0.7); padding: 1rem; border: 1px solid var(--line); max-height: 420px; overflow: auto; }
+  </style>
+</head>
+<body>
+  <div class="atmosphere" aria-hidden="true"></div>
+  <header class="topbar">
+    <div class="brand-lockup">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <div>
+        <p class="brand-name">DOCSHIELD AI</p>
+        <p class="brand-sub">Officer Dashboard</p>
+      </div>
+    </div>
+    <span class="phase-pill">SIH Phase 18–30 · Complete</span>
+  </header>
+
+  <main class="dash-wrap">
+    <h1>Case queue</h1>
+    <p class="muted">Screening triage only — not legal authenticity / not official verification. Blockchain: NOT CONNECTED.</p>
+    <div class="dash-actions">
+      <a href="/">← Analyze</a>
+      <button type="button" id="btn-refresh">Refresh cases</button>
+      <button type="button" id="btn-audit">Verify audit chain</button>
+    </div>
+    <div class="panel">
+      <table class="cases-table" id="cases-table">
+        <thead>
+          <tr>
+            <th>Case</th>
+            <th>Type</th>
+            <th>Decision</th>
+            <th>Auth (proxy)</th>
+            <th>Confidence</th>
+            <th>Quality</th>
+            <th>Created</th>
+          </tr>
+        </thead>
+        <tbody id="cases-body"></tbody>
+      </table>
+    </div>
+    <h2>Case detail / report</h2>
+    <p class="muted" id="audit-status"></p>
+    <pre id="case-detail">Select a case row.</pre>
+  </main>
+  <script>
+    const body = document.getElementById("cases-body");
+    const detail = document.getElementById("case-detail");
+    const auditStatus = document.getElementById("audit-status");
+
+    async function loadCases() {
+      const res = await fetch("/api/cases?limit=100");
+      const rows = await res.json();
+      body.innerHTML = "";
+      rows.forEach((c) => {
+        const tr = document.createElement("tr");
+        tr.style.cursor = "pointer";
+        tr.innerHTML = `
+          <td class="mono">${c.case_id}</td>
+          <td>${c.document_type}</td>
+          <td class="pill ${c.decision}">${c.decision}</td>
+          <td>${c.authenticity_estimate}</td>
+          <td>${c.confidence}</td>
+          <td>${c.evidence_quality}</td>
+          <td>${(c.created_at || "").slice(0, 19)}</td>`;
+        tr.addEventListener("click", () => openCase(c.case_id));
+        body.appendChild(tr);
+      });
+      if (!rows.length) {
+        body.innerHTML = "<tr><td colspan=7>No cases yet — analyze a document first.</td></tr>";
+      }
+    }
+
+    async function openCase(caseId) {
+      const [d, r, a] = await Promise.all([
+        fetch(`/api/case/${caseId}/detail`).then((x) => x.json()),
+        fetch(`/api/report/${caseId}?persist=false`).then((x) => x.json()),
+        fetch(`/api/audit/case/${caseId}`).then((x) => x.json()),
+      ]);
+      detail.textContent = JSON.stringify(
+        {
+          detail: d,
+          report_markdown: r.markdown,
+          audit: a,
+        },
+        null,
+        2
+      );
+    }
+
+    document.getElementById("btn-refresh").addEventListener("click", loadCases);
+    document.getElementById("btn-audit").addEventListener("click", async () => {
+      const v = await fetch("/api/audit/chain/verify").then((x) => x.json());
+      auditStatus.textContent = `Audit: ${v.status} · checked=${v.checked || 0} · blockchain=${v.blockchain}`;
+    });
+    loadCases();
+  </script>
+</body>
+</html>

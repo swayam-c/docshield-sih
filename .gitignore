@@ -1,0 +1,61 @@
+# DOCSHIELD AI — Python / tooling
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+ENV/
+*.egg-info/
+.eggs/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Environment & secrets
+.env
+.env.local
+*.pem
+*.key
+
+# Runtime data
+data/*.db
+data/uploads/**
+!data/uploads/.gitkeep
+data/temp/**
+!data/temp/.gitkeep
+data/reports/**
+!data/reports/.gitkeep
+audit/audit_chain.json
+
+# Models / large artifacts (keep structure)
+models/**/*.pth
+models/**/*.pt
+models/**/*.onnx
+models/**/*.bin
+!models/**/.gitkeep
+
+# Dataset images (keep structure + metadata)
+dataset/**/*.png
+dataset/**/*.jpg
+dataset/**/*.jpeg
+dataset/**/*.webp
+!dataset/**/.gitkeep
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Frontend build (if added later)
+frontend/node_modules/
+frontend/dist/

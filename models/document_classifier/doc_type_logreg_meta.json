@@ -1,0 +1,37 @@
+{
+  "model_name": "document_type_logreg",
+  "model_version": "sih-phase2-synthetic-v1",
+  "dataset": "synthetic_feature_centroids_v1",
+  "classes": [
+    "PASSPORT",
+    "VISA",
+    "NATIONAL_ID",
+    "DRIVING_LICENCE",
+    "PERMIT",
+    "OTHER",
+    "UNKNOWN"
+  ],
+  "feature_names": [
+    "aspect",
+    "card_like",
+    "tall_page",
+    "blue_frac",
+    "warm_frac",
+    "cyan_frac",
+    "mean_sat_n",
+    "mean_val_n",
+    "top_edge",
+    "mid_edge",
+    "bottom_edge",
+    "photo_left_bias",
+    "prior_passport",
+    "prior_visa",
+    "prior_national_id",
+    "prior_dl",
+    "prior_permit",
+    "prior_pan",
+    "prior_aadhaar"
+  ],
+  "samples_per_class": 40,
+  "note": "Trained on synthetic feature distributions only \u2014 not on real government identity documents."
+}
